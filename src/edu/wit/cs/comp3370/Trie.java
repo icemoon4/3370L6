@@ -8,19 +8,20 @@ import java.util.ArrayList;
  * COMP 3370
  * Lab Assignment 6 solution
  * 
+ * Rachel Palmer
  */
 
 public class Trie extends Speller {
 
-	private static int FIXES = 2; //the number of letters off a word can be to be suggested
+	private static int FIXES = 2; //edit distance
 	protected class TNode {
 		TNode[] alphabet;
 		
 		public TNode(){	
-			alphabet = new TNode[26];
+			alphabet = new TNode[26]; //each node has an array to represent the alphabet
 		}
 		
-		boolean isDone;
+		boolean isDone; //marks whether its at the end of the word
 	}
 	
 	private TNode root;
@@ -42,7 +43,7 @@ public class Trie extends Speller {
 			else
 				w = w.alphabet[curr-'a']; //if there's already a branch, switch to that
 		}
-		//maybe add new node which will be isDone
+		//once the word is inserted, set the last node to isDone=true
 		w.isDone = true;
 	}
 
@@ -63,12 +64,12 @@ public class Trie extends Speller {
 	}
 
 	@Override
-	public String[] getSugg(String s) {
+	public String[] getSugg(String s) { //setup initial search
 		TNode w = root;
-		ArrayList<String> sugg = new ArrayList<String>();
-		int t_fix = FIXES;
-		genSugg(s, "", t_fix, sugg, w, 0);
-		String[] edits = sugg.toArray(new String[sugg.size()]);
+		ArrayList<String> sugg = new ArrayList<String>(); //allows for dynamic adding
+		int t_fix = FIXES; //temp var for FIXES
+		genSugg(s, "", t_fix, sugg, w, 0); //gives the word, # edits, suggestions array, the root, and starting position for char in s
+		String[] edits = sugg.toArray(new String[sugg.size()]); //convert sugg to array
 		return edits;
 	}
 	
@@ -79,19 +80,17 @@ public class Trie extends Speller {
 			for(int i = 0; i<26; i++){
 				if(c.alphabet[i] != null){
 					char temp = (char) ('a'+i);
-					buildWord += temp;
-					//System.out.println("buildword after add: " + buildWord);
-					if(temp == key)
+					buildWord += temp; //add char to string
+					if(temp == key) //if equal, don't change fix value
 						genSugg(s, buildWord, fix, sugg, c.alphabet[i], wordPos+1);
 					else if(fix != 0)
 						genSugg(s, buildWord, fix-1, sugg, c.alphabet[i], wordPos+1);
 					//remove char from buildword
 					buildWord = buildWord.substring(0,buildWord.length()-1);
-					//System.out.println("buildword after delete: " + buildWord);
 				}
 			}
 		}
-		else if(c.isDone){
+		else if(c.isDone){ //if isDone is false, s is diff length than buildWord, or wordPos > s length, do nothing
 			sugg.add(buildWord);
 		}
 	}
